@@ -1,0 +1,30 @@
+---
+- hosts: web 
+  vars:
+    http_port: 8080
+  remote_user: root
+  tasks:
+  - name: ensure apache is at the latest version
+    yum:
+      name: httpd
+      state: latest
+  - name: copy index.html
+    copy:
+      src: html/index.html
+      dest: /var/www/vhosts/virtualexample1.com/index.html
+  - name: write the apache config file
+    template:
+      src: templates/virtualhost.conf
+      dest: /etc/httpd/conf.d/virtualhost.conf
+    notify:
+    - restart apache
+  - name: ensure apache is running
+    service:
+      name: httpd
+      state: started
+  handlers:
+    - name: restart apache
+      service:
+        name: httpd
+        state: restarted
+
